@@ -1,0 +1,187 @@
+---
+- name: "network conf"
+  hosts: all
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: network
+      tags: [network]
+
+- name: "gateway nft"
+  hosts: gateway
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: gateway
+      tags: [gateway]
+
+
+- name: "common"
+  hosts: all
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: common
+      tags: [common]
+
+- name: "nfs-server"
+  hosts: ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: nfs_server
+      tags: [nfs]
+
+- name: "nfs-client"
+  hosts: k3s_workers:database
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: nfs_client
+      tags: [nfs_client]
+
+
+- name: " lvm "
+  hosts: database:ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: lvm
+      tags: [lvm]
+
+- name: "postgres"
+  hosts: database
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: postgresql
+      tags: [postgres]
+
+
+- name: k3s_master
+  hosts: k3s_master
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: k3s_server
+      tags: [k3s-server]
+
+- name: k3s_agent
+  hosts: k3s_workers
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: k3s_agent
+      tags: [k3s-agent]
+
+
+- name: install docker
+  hosts: ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: docker
+      tags: [docker]
+
+- name: install node_exporter
+  hosts: all
+  any_errors_fatal: true
+  roles:
+    - role: node_exporter
+      tags: [node_exporter]
+
+- name: postgesql-exporter
+  hosts: database
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: postgres_exporter
+      tags: [postgres_exporter]
+
+- name: prometheus
+  hosts: ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: prometheus
+      tags: [prometheus]
+
+- name: grafana
+  hosts: ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: grafana
+      tags: [grafana]
+
+- name: alertmanager
+  hosts: ops
+  become: true
+  any_errors_fatal: true
+  roles: 
+    - role: alertmanager
+      tags: [alertmanager]
+
+- name: k3s
+  hosts: ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: kubeconfig
+      tags: [kubeconfig]
+
+- name: registry
+  hosts: ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: registry
+      tags: [registry]
+
+- name: k3s_registry
+  hosts: k3s_cluster
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: k3s_registry
+      tags: [k3s_registry]
+
+- name: gitea
+  hosts: ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: gitea
+      tags: [gitea]
+
+- name: jenkins
+  hosts: ops
+  become: true
+  any_errors_fatal: true 
+  roles:
+    - role: jenkins
+      tags: [jenkins]
+
+- name: backup
+  hosts: database
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: backup
+      tags: [backup]
+
+- name: hardening
+  hosts: all
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: ssh_hardening
+      tags: [hardening]
+
+- name: firewall
+  hosts: database:ops
+  become: true
+  any_errors_fatal: true
+  roles:
+    - role: firewall
+      tags: [firewall]

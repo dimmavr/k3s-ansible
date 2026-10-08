@@ -1,0 +1,21 @@
+table inet hostfw
+delete table inet hostfw
+
+table inet hostfw {
+  chain input {
+    type filter hook input priority 0; policy drop;
+
+    # πάντα επιτρεπτά
+    iif "lo" accept
+    ct state established,related accept
+    ip protocol icmp accept
+
+    # SSH μόνο από το mgmt
+    tcp dport 22 ip saddr { {{ fw_ssh_src | join(', ') }} } accept comment "ssh"
+
+    # κανόνες ανά group (από τα group_vars)
+{% for r in fw_rules %}
+    {{ r.proto }} dport {{ r.port }} ip saddr { {{ r.src | join(', ') }} } accept comment "{{ r.comment }}"
+{% endfor %}
+  }
+}

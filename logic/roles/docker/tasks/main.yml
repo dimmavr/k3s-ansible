@@ -1,0 +1,38 @@
+---
+# tasks file for docker
+#
+#
+- name: download docker
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - python3-docker
+    state: present
+  become: true 
+
+- name: docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: user docker
+  ansible.builtin.user:
+    name: user
+    groups: docker
+    append: true
+
+- name: daemon docker
+  ansible.builtin.copy:
+    content: |
+      {
+        "features": {
+          "containerd-snapshotter": false
+        },
+        "insecure-registries": ["infra:5000"]
+      }
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart docker

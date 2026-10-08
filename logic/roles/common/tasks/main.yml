@@ -1,0 +1,20 @@
+---
+# tasks file for roles/common
+
+- name: update
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: true
+
+- name: install packages
+  ansible.builtin.apt:
+    name: "{{ baseline_packages }}"
+    state: present
+  become: true
+  when: (baseline_packages) | length > 0
+
+- name: timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+  become: true

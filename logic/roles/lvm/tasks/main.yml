@@ -1,0 +1,42 @@
+
+# tasks file for lvm
+#
+
+---
+# tasks file for lvm
+
+- name: ensure lvm and xfs tools are installed
+  ansible.builtin.package:
+    name:
+      - lvm2
+      - xfsprogs
+    state: present
+
+- name: create vg
+  community.general.lvg:
+    vg: "{{ lvm_vg }}"
+    pvs: "{{ lvm_disk }}"
+
+- name: create lv
+  community.general.lvol:
+    vg: "{{ lvm_vg }}"
+    lv: "{{ item.name }}"
+    size: "{{ item.lv_size }}"
+    resizefs: true
+    shrink: false
+  loop: "{{ lvm_lv }}"
+
+- name: create xfs
+  community.general.filesystem:
+    fstype: xfs
+    dev: "/dev/{{ lvm_vg }}/{{ item.name }}"
+  loop: "{{ lvm_lv }}"
+
+- name: mount lv
+  ansible.posix.mount:
+    path: "{{ item.mount }}"
+    src: "/dev/{{ lvm_vg }}/{{ item.name }}"
+    fstype: xfs
+    opts: defaults
+    state: mounted
+  loop: "{{ lvm_lv }}"

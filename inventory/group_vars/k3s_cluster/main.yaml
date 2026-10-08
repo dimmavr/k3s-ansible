@@ -1,0 +1,5 @@
+---
+
+k3s_server_url: https://master:6443
+k3s_token: "{{ vault_k3s_token }}"
+k3s_iface: enp0s9.20

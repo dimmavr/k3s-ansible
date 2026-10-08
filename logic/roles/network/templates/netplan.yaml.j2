@@ -1,0 +1,26 @@
+# Managed by Ansible
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s9:
+      dhcp4: no
+      dhcp6: no
+      optional: true
+  vlans:
+{% for conn in network_connections %}
+{% if conn.vlan is defined %}
+    {{ conn.ifname }}:
+      id: {{ conn.vlan }}
+      link: enp0s9
+      addresses:
+        - {{ conn.ipv4_address }}
+{% if conn.ipv4_gateway is defined %}
+      routes:
+        - to: default
+          via: {{ conn.ipv4_gateway }}
+{% endif %}
+      nameservers:
+        addresses: {{ conn.dns }}
+{% endif %}
+{% endfor %}

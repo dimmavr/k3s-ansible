@@ -1,0 +1,82 @@
+---
+
+nfs_exports:
+  - path: /srv/nfs/appdata
+    clients:
+      - 10.0.20.11
+      - 10.0.20.12
+    options: "rw,sync,no_subtree_check"
+
+  - path: /srv/nfs/backups
+    clients:
+      - 10.0.30.10
+    options: "rw,sync,no_subtree_check"
+
+lvm_disk: /dev/sdb
+lvm_vg: vg_data
+
+lvm_lv:
+  - name: "lv_dcdata"
+    mount: /var/lib/docker
+    lv_size: "100%VG"
+
+#pometheus
+
+prometheus_node_targets:
+  - gw-ops:9100
+  - master:9100
+  - node1:9100
+  - node2:9100
+  - db:9100
+  - infra:9100
+
+prometheus_postgres_targets:
+  - db:9187
+
+#grafana
+grafana_user: admin
+grafana_pass: "{{ vault_grafana_admin_password }}"
+grafana_port: 3001
+
+#kubernetes
+kubectl_version: v1.36.4
+
+#gitea
+gitea_port: 3000
+ssh_port: 2222
+
+gitea_ssh_port: 2222
+
+fw_rules:
+  - port: 3000
+    proto: tcp
+    src: [10.0.10.0/24]
+    comment: gitea web
+  - port: 2222
+    proto: tcp
+    src: [10.0.10.0/24]
+    comment: gitea ssh
+  - port: 8080
+    proto: tcp
+    src: [10.0.10.0/24]
+    comment: jenkins
+  - port: 3001
+    proto: tcp
+    src: [10.0.10.0/24]
+    comment: grafana
+  - port: 9090
+    proto: tcp
+    src: [10.0.10.0/24]
+    comment: prometheus ui
+  - port: 9093
+    proto: tcp
+    src: [10.0.10.0/24]
+    comment: alertmanager ui
+  - port: 5000
+    proto: tcp
+    src: [10.0.20.0/24]
+    comment: registry from k3s nodes
+  - port: 2049
+    proto: tcp
+    src: [10.0.20.11/32, 10.0.20.12/32, 10.0.30.10/32]
+    comment: nfs from workers and db

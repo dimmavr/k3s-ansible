@@ -1,0 +1,30 @@
+---
+# tasks file for backup
+#
+
+- name: template
+  ansible.builtin.template:
+    src: backup.sh.j2
+    dest: /usr/local/bin/backup.sh
+    mode: '0755'
+
+- name: service
+  ansible.builtin.copy:
+    src: pg-backup.service
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+
+- name: timer
+  ansible.builtin.copy:
+    src: pg-backup.timer
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+
+- name: run service
+  ansible.builtin.systemd:
+    name: pg-backup.timer
+    state: started
+    enabled: true
+    daemon_reload: true

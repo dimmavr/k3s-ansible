@@ -1,0 +1,8 @@
+---
+
+nfs_mounts:
+  - src: infra:/srv/nfs/appdata
+    path: /mnt/appdata
+      
+
+k3s_service_name: k3s-agent

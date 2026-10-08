@@ -1,0 +1,28 @@
+---
+# tasks file for roles/gateway
+#
+- name: net.ipv4.ip_forward
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: nftables
+  ansible.builtin.template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+    owner: root
+    group: root
+    mode: '0600'
+    validate: nft -c -f %s
+  become: true
+  notify: restart nft
+
+- name: service nftsbles
+  ansible.builtin.service:
+    name: nftables
+    state: started
+    enabled: true
+  

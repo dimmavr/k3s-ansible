@@ -1,0 +1,16 @@
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table ip nat {
+  chain postrouting {
+    type nat hook postrouting priority 100; policy accept;
+    oifname "{{ gw_uplink }}" masquerade
+    ct status dnat masquerade
+
+  }
+  chain preroouting {
+    type nat hook prerouting priority dstnat;
+    iifname "{{ ingress_iface }}" tcp dport {{ ingress_listen_port }} dnat to {{ ingress_target_ip }}:{{ ingress_target_port }}
+  }
+}

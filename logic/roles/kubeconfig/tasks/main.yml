@@ -1,0 +1,32 @@
+---
+# tasks file for kubeconfig
+#
+- name: install kube
+  ansible.builtin.get_url:
+    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+- name: read kubeconfig from master
+  ansible.builtin.slurp:
+    src: /etc/rancher/k3s/k3s.yaml
+  delegate_to: master
+  register: kubeconfig_raw
+
+- name: create directory
+  ansible.builtin.file:
+    path: /home/user/.kube
+    state: directory
+    owner: user
+    group: user
+    mode: '0700'
+
+- name: write kubeconfig on infra
+  ansible.builtin.copy:
+    content: "{{ kubeconfig_raw.content | b64decode | replace('127.0.0.1', 'master') }}"
+    dest: /home/user/.kube/config
+    owner: user
+    group: user
+    mode: '0600'
+  no_log: true
+

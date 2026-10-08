@@ -1,0 +1,35 @@
+---
+
+- name: deploy netplan conf
+  ansible.builtin.template:
+    src: netplan.yaml.j2
+    dest: /etc/netplan/99-ansible.yaml
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+  notify: apply netplan
+
+- name: disable cloud-init default
+  ansible.builtin.copy:
+    dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+    content: "network: {config: disabled}"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+
+- name: host
+  ansible.builtin.copy:
+    dest: /etc/hosts
+    src: hosts
+    owner: root
+    group: root
+    mode: '0644'
+  become: true 
+
+
+- name: set hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"

@@ -1,0 +1,52 @@
+---
+# tasks file for roles/postgresql
+#
+#
+
+- name: postgres install
+  ansible.builtin.apt:
+    name:
+      - postgresql
+      - python3-psycopg2
+      - acl
+  become: true
+
+- name: owner file
+  ansible.builtin.file:
+    path: /var/lib/postgresql
+    owner: postgres
+    group: postgres
+    mode: '0755'
+
+- name: listen address
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/{{ pg_version }}/main/postgresql.conf
+    regexp: '^#?listen_addresses'
+    line: "listen_addresses = 'localhost,{{ pg_listen_address }}'"
+  notify: restart postgres
+
+- name: pg_hba
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/{{ pg_version }}/main/pg_hba.conf
+    line: "host {{ pg_db_name }} {{ pg_db_user }} {{ item }}/32 scram-sha-256"
+  loop: "{{ pg_hba_clients }}"
+  notify: restart postgres
+
+- name: Create PostgreSQL user
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: "{{ pg_db_user }}"
+    password: "{{ pg_db_password }}"
+
+- name: Create PostgreSQL database
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: "{{ pg_db_name }}"
+    owner: "{{ pg_db_user }}"
+
+- name: service postgres
+  ansible.builtin.service:
+    name: postgresql@{{ pg_version }}-main
+    state: started
+    enabled: true
+  

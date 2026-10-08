@@ -1,0 +1,55 @@
+---
+
+ansible_user: user
+ansible_become: true
+ansible_become_method: sudo
+
+infrastructure_network:
+   mgmt:
+     description: "ssh management net"
+     subnet: "10.0.10.0/24"
+     vlan: null
+     portgroup: "mgmt"
+   
+   app:
+     description: "k3s cluster"
+     subnet: "10.0.20.0/24"
+     vlan: 20
+     portgroup: "app"
+
+   db:
+     description: "database network"
+     subnet: "10.0.30.0/24"
+     vlan: 30
+     portgroup: "db"
+
+   ops:
+     description: "nfs,ci/cd,monitoring"
+     subnet: "10.0.40.0/24"
+     vlan: 40
+     portgroup: "ops"
+
+
+dns_server:
+  - 8.8.8.8
+  - 1.1.1.1
+
+timezone: "Europe/Athens"
+
+
+baseline_packages:
+  - curl
+  - wget
+  - rsync
+  - unzip
+  - tar
+  - lsof
+  - net-tools
+  - traceroute
+  - tcpdump
+  - dnsutils
+  - netcat-openbsd
+
+fw_ssh_src:
+  - 10.0.10.0/24
+

@@ -1,0 +1,21 @@
+---
+# tasks file for roles/k3s_server
+#
+- name: download k3s
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s-install.sh
+    mode: '0755'
+
+- name: install k3s
+  ansible.builtin.command: /tmp/k3s-install.sh
+  args:
+    creates: /usr/local/bin/k3s
+  environment: 
+    K3S_TOKEN: "{{ k3s_token }}"
+    INSTALL_K3S_EXEC: >-
+      server
+      --node-ip {{ ansible_facts[k3s_iface]['ipv4']['address'] }}
+      --flannel-iface {{ k3s_iface }}
+      --node-taint node-role.kubernetes.io/control-plane:NoSchedule
+  

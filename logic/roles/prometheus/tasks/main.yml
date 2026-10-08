@@ -1,0 +1,40 @@
+---
+# tasks file for prometheus
+#
+- name: directory prometheus
+  ansible.builtin.file:
+    path: /opt/prometheus
+    state: directory
+    mode: '0755'
+
+- name: prometheus template
+  ansible.builtin.template:
+    src: prometheus.j2
+    dest: /opt/prometheus/prometheus.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart prometheus
+
+- name: alert_rules
+  ansible.builtin.template:
+    src: alert_rules.yml.j2
+    dest: /opt/prometheus/alert_rules.yml
+    group: root
+    owner: root
+    mode: '0644'
+  notify: restart prometheus
+
+
+
+- name: docker_container
+  community.docker.docker_container:
+    name: prometheus
+    image: prom/prometheus
+    volumes:
+      - /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+      - /opt/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+    network_mode: host
+    restart_policy: unless-stopped
+

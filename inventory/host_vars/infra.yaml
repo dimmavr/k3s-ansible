@@ -1,0 +1,17 @@
+---
+
+ansible_host: 10.0.10.14
+
+network_connections:
+  - conn_name: "mgmt"
+    ifname: "enp0s8"
+    ipv4_address: "10.0.10.14/24"
+    dns: "{{ dns_server }}"
+
+  - conn_name: "ops"
+    ifname: "enp0s9.40"
+    vlan: 40
+    ipv4_address: "10.0.40.10/24"
+    ipv4_gateway: "10.0.40.1"
+    dns: "{{ dns_server }}"
+

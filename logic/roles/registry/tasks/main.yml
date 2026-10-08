@@ -1,0 +1,12 @@
+---
+# tasks file for registry
+#
+- name: registry
+  community.docker.docker_container:
+    name: registry
+    image: registry:2
+    network_mode: host
+    volumes:
+      - registry_data:/var/lib/registry
+    restart_policy: unless-stopped
+

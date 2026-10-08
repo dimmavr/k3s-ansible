@@ -1,0 +1,42 @@
+---
+# tasks file for roles/postgres_exporter
+#
+- name: download postgres-exporter
+  ansible.builtin.apt:
+    name:
+      - prometheus-postgres-exporter
+    state: present
+  become: true
+
+- name: create exporter db user
+  community.postgresql.postgresql_user:
+    name: "{{ pg_exporter_user }}"
+    password: "{{ pg_exporter_password }}"
+    no_password_changes: true
+  become_user: postgres
+  
+
+
+- name: pg_monitor
+  community.postgresql.postgresql_membership:
+    groups: pg_monitor
+    target_roles: "{{ pg_exporter_user }}"
+  become_user: postgres
+
+
+- name: postgres template
+  ansible.builtin.template:
+    src: postgresql_exporter.j2
+    dest: /etc/default/prometheus-postgres-exporter
+    owner: root
+    group: root
+    mode: '0600'
+  notify: restart postgres exporter
+  
+
+- name: service 
+  ansible.builtin.service:
+    name: prometheus-postgres-exporter
+    state: started
+    enabled: true
+  become: true 

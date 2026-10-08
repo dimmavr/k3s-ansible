@@ -1,0 +1,17 @@
+---
+# tasks file for gitea
+#
+- name: gitea
+  community.docker.docker_container:
+    name: gitea
+    image: gitea/gitea:latest-rootless
+    network_mode: host
+    restart_policy: unless-stopped
+    volumes:
+      - gitea_data:/var/lib/gitea
+      - gitea_config:/etc/gitea
+    env:
+       GITEA__server__HTTP_PORT: "{{ gitea_port | string }}"
+       GITEA__server__SSH_PORT: "{{ ssh_port | string }}"
+       GITEA__server__ROOT_URL: http://10.0.10.14:3000/
+       GITEA__database__DB_TYPE: sqlite3

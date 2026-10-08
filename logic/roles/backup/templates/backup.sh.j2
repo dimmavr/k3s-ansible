@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -euo pipefail
+
+timestamp=$(date +%Y%m%d-%H%M%S)
+filename=appdb-${timestamp}.sql.gz
+
+cd /tmp
+
+mountpoint -q {{ backup_dir }} || { echo "ERROR: {{ backup_dir }} not mounted"; exit 1; }
+
+sudo -u postgres pg_dump {{ pg_db_name }} | gzip > {{ backup_dir }}/${filename}
+ls -lh {{ backup_dir }}/${filename}
+
+find {{ backup_dir }} -name "*.sql.gz" -mtime +{{ backup_keep_days }} -delete

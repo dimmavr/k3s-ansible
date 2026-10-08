@@ -1,0 +1,27 @@
+---
+# tasks file for nfs_client
+#
+#
+
+- name: install nfs-common
+  ansible.builtin.apt:
+    name: nfs-common
+    state: present
+  become: true
+
+- name: mountpoint
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item.path }}"
+    mode: '0755'
+  become: true
+  loop: "{{ nfs_mounts }}"
+
+- name: mount
+  ansible.posix.mount:
+    state: mounted
+    fstype: nfs
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    opts: defaults,_netdev,nofail
+  loop: "{{ nfs_mounts }}"

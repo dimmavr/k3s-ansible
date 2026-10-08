@@ -1,0 +1,35 @@
+---
+# tasks file for roles/nfs_server
+#
+
+- name: install nfs-kernel-server
+  ansible.builtin.apt:
+    name: nfs-kernel-server
+    state: present
+  become: true
+
+- name: create file 
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item.path }}"
+    mode: '0777'
+    owner: nobody
+    group: nogroup
+  loop: "{{ nfs_exports }}"
+
+
+- name: exposts 
+  ansible.builtin.template:
+    src: export.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: reload exports
+
+- name: service nfs
+  ansible.builtin.service:
+    name: nfs-server
+    state: started
+    enabled: true 

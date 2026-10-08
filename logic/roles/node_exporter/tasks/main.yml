@@ -1,0 +1,17 @@
+---
+# tasks file for node_exporter
+#
+- name: download node export
+  ansible.builtin.apt:
+    name:
+      - prometheus-node-exporter
+    state: present
+  become: true
+
+- name: service node exporter
+  ansible.builtin.service:
+    name: prometheus-node-exporter
+    state: started
+    enabled: true
+  become: true
+

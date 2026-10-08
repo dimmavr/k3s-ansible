@@ -1,0 +1,47 @@
+---
+
+nfs_mounts:
+  - src: infra:/srv/nfs/backups
+    path: /mnt/backups
+
+lvm_disk: /dev/sdb
+lvm_vg: vg_data
+
+lvm_lv:
+  - name: "lv_pgdata"
+    lv_size: "70%VG"
+    mount: /var/lib/postgresql
+
+
+pg_version: 14
+pg_listen_address: 10.0.30.10
+
+pg_db_name: appdb
+pg_db_user: appuser
+pg_db_password: "{{ vault_pg_db_password }}"
+
+pg_hba_clients:
+  - 10.0.20.11
+  - 10.0.20.12
+
+# postgres_exporter
+pg_exporter_user: exporter
+pg_exporter_password: "{{ vault_pg_exporter_password }}"
+
+pg_db_name: appdb
+backup_dir: /mnt/backups
+backup_keep_days: 7
+
+fw_rules:
+  - port: 5432
+    proto: tcp
+    src: "{{ pg_hba_clients }}"
+    comment: app to postgress
+  - port: 9100
+    proto: tcp
+    src: [10.0.40.10]
+    comment: prometheus node_exporter
+  - port: 9187
+    proto: tcp
+    src: [10.0.40.10]
+    comment: prometheus postgres_exporter

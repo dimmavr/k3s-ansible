@@ -1,0 +1,60 @@
+---
+# tasks file for jenkins
+#
+- name: download java
+  ansible.builtin.apt:
+    name: openjdk-21-jre-headless
+    state: present
+  become: true
+
+- name: repo 
+  ansible.builtin.get_url: 
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+    dest: /etc/apt/keyrings/jenkins-keyring.asc
+    mode: '0644'
+    force: true
+
+- name: repo_apt
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
+    state: present
+
+- name: download jenkins
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
+    update_cache: yes
+  become: true
+  
+
+- name: docker jenkins
+  ansible.builtin.user:
+    name: jenkins
+    groups: docker
+    append: true
+  notify: restart jenkins
+
+- name: kube folder
+  ansible.builtin.file: 
+    path: /var/lib/jenkins/.kube
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: '0700'
+
+- name: kube copy
+  ansible.builtin.copy:
+    src: /home/user/.kube/config
+    dest: /var/lib/jenkins/.kube/config
+    owner: jenkins
+    mode: '0600'
+    remote_src: true
+
+- name: service jenkins
+  ansible.builtin.service:
+    name: jenkins
+    state: started
+    enabled: true
+
+
+

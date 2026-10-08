@@ -1,0 +1,7 @@
+---
+# handlers file for roles/postgres_exporter
+#
+- name: restart postgres exporter
+  ansible.builtin.service:
+    name: prometheus-postgres-exporter
+    state: restarted

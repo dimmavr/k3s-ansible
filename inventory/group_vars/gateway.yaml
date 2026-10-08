@@ -1,0 +1,9 @@
+---
+
+#nft gw uplink
+
+gw_uplink: enp0s3
+ingress_iface: enp0s8
+ingress_listen_port: "8080"
+ingress_target_ip: "10.0.20.11"
+ingress_target_port: "30050"

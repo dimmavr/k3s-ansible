@@ -1,0 +1,27 @@
+---
+# tasks file for alermanager
+#
+- name: folder alermanager
+  ansible.builtin.file:
+    path: /opt/alertmanager
+    state: directory
+    mode: '0755'
+
+- name: template alertmanager
+  ansible.builtin.template:
+    src: alertmanager.yml.j2
+    dest: /opt/alertmanager/alertmanager.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart alertmanager
+
+- name: docker alert
+  community.docker.docker_container:
+    name: alertmanager
+    image: prom/alertmanager
+    volumes:
+      - /opt/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    network_mode: host
+    restart_policy: unless-stopped

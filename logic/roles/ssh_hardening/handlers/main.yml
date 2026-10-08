@@ -1,0 +1,12 @@
+---
+# handlers file for ssh_hadening
+#
+- name: restart hardening
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
+
+- name: restart fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    state: restarted

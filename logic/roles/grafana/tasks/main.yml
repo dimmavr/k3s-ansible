@@ -1,0 +1,31 @@
+---
+# tasks file for grafana
+#
+- name: grafana folder
+  ansible.builtin.file:
+    path: /opt/grafana/provisioning/datasources
+    state: directory
+    mode: '0755'
+
+- name: grafana template
+  ansible.builtin.template:
+    src: grafana.j2
+    dest: /opt/grafana/provisioning/datasources/prometheus.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart grafana
+
+- name: dockervgrafana
+  community.docker.docker_container:
+    name: grafana
+    image: grafana/grafana
+    volumes:
+      - /opt/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana_data:/var/lib/grafana
+    env:
+      GF_SECURITY_ADMIN_USER: "{{ grafana_user }}"
+      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_pass }}"
+      GF_SERVER_HTTP_PORT: "{{ grafana_port | string }}"
+    network_mode: host
+    restart_policy: unless-stopped
